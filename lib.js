@@ -4,6 +4,7 @@ class WebGL {
   vs;
   fs;
   buffer;
+  textures = [];
 
   constructor(el) {
     if (el instanceof HTMLCanvasElement) {
@@ -44,6 +45,8 @@ class WebGL {
 
   loadTexture(image) {
     const texture = this.gl.createTexture();
+    
+    this.gl.activeTexture(this.gl['TEXTURE' + this.textures.length]);
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -69,6 +72,8 @@ class WebGL {
       this.gl.TEXTURE_WRAP_T,
       this.gl.CLAMP_TO_EDGE
     );
+
+    this.textures.push(texture);
     return this;
   }
 
@@ -90,6 +95,8 @@ class WebGL {
   setUniform(name, type, value) {
     const location = this.gl.getUniformLocation(this.program, name);
     this.gl[type](location, value)
+
+    return this;
   }
 
   draw(type, count) {
@@ -97,6 +104,12 @@ class WebGL {
     this.gl.clearColor(0, 0, 0, 0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     this.gl.drawArrays(type, 0, count);
+  }
+
+  then(callback) {
+    callback.call(this)
+    
+    return this;
   }
 }
 
